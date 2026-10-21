@@ -1,0 +1,393 @@
+<ion-header [translucent]="true" class="pokedex-header">
+  <ion-toolbar class="header-toolbar">
+    <div class="pokedex-lights" slot="start">
+      <div class="big-blue-lens">
+        <div class="lens-reflection"></div>
+      </div>
+      <div class="small-lights">
+        <span class="light red"></span>
+        <span class="light yellow"></span>
+        <span class="light green"></span>
+      </div>
+    </div>
+
+    <ion-title class="pokedex-title">
+      <span class="brand">Pokédex</span>
+    </ion-title>
+
+    <div slot="end" class="badge-count" *ngIf="!loading">
+      {{ filteredPokemons.length }} / {{ pokemons.length }}
+    </div>
+  </ion-toolbar>
+
+  <!-- NAVEGACIÓN PRINCIPAL: 1. Ver Todos | 2. Comparar -->
+  <div class="main-mode-tabs">
+    <a
+      [routerLink]="['/pokedex']"
+      class="mode-tab-btn active"
+    >
+      <ion-icon name="list-outline"></ion-icon>
+      <span class="tab-label">1. Ver Todos</span>
+    </a>
+
+    <a
+      [routerLink]="['/compare']"
+      class="mode-tab-btn"
+    >
+      <ion-icon name="swap-horizontal"></ion-icon>
+      <span class="tab-label">2. Comparar</span>
+      <span class="tab-vs-pill">VS</span>
+    </a>
+  </div>
+
+  <!-- Barra de Búsqueda -->
+  <ion-toolbar class="search-toolbar">
+    <ion-searchbar
+      [(ngModel)]="searchQuery"
+      placeholder="Buscar por nombre o # (ej. Pikachu, 25)..."
+      [debounce]="150"
+      show-clear-button="focus"
+      class="custom-searchbar"
+    ></ion-searchbar>
+  </ion-toolbar>
+
+  <!-- Filtro de tipos adaptable para celular y pantalla completa -->
+  <div class="type-filter-container" [class.is-grid]="filterViewMode === 'grid'">
+    <div class="filter-bar-header">
+      <div class="filter-info">
+        <span class="filter-header-title">Tipo:</span>
+        <span
+          *ngIf="selectedType !== 'all'"
+          class="active-filter-badge"
+          [style.background-color]="getTypeColor(selectedType)"
+          (click)="selectType('all')"
+          title="Toca para quitar filtro"
+        >
+          {{ translateType(selectedType) }}
+          <ion-icon name="close"></ion-icon>
+        </span>
+        <span *ngIf="selectedType === 'all'" class="all-types-hint">Todos</span>
+      </div>
+
+      <button
+        type="button"
+        class="filter-view-toggle"
+        (click)="toggleFilterMode()"
+      >
+        <ion-icon [name]="filterViewMode === 'grid' ? 'reorder-two-outline' : 'grid-outline'"></ion-icon>
+        <span>{{ filterViewMode === 'grid' ? 'Deslizar' : 'Ver todos' }}</span>
+      </button>
+    </div>
+
+    <!-- Vista Deslizable -->
+    <div class="type-scroll" *ngIf="filterViewMode === 'scroll'">
+      <button
+        type="button"
+        *ngFor="let type of typeFilters"
+        [class.selected]="selectedType === type.id"
+        [style.--chip-color]="type.color"
+        (click)="selectType(type.id)"
+        class="type-chip-btn"
+      >
+        <span class="chip-icon">{{ type.icon }}</span>
+        <span class="chip-label">{{ type.name }}</span>
+      </button>
+    </div>
+
+    <!-- Vista Cuadrícula Adaptable para Celular -->
+    <div class="type-grid-mobile" *ngIf="filterViewMode === 'grid'">
+      <button
+        type="button"
+        *ngFor="let type of typeFilters"
+        [class.selected]="selectedType === type.id"
+        [style.--chip-color]="type.color"
+        (click)="selectType(type.id)"
+        class="type-grid-item"
+      >
+        <span class="grid-item-icon">{{ type.icon }}</span>
+        <span class="grid-item-label">{{ type.name }}</span>
+      </button>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="pokedex-content">
+  <!-- Spinner de Carga -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="pokeball-spinner"></div>
+    <p>Cargando Pokédex...</p>
+  </div>
+
+  <!-- Estado vacío cuando no hay resultados de búsqueda -->
+  <div *ngIf="!loading && filteredPokemons.length === 0" class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>No se encontraron Pokémon</h3>
+    <p>Prueba con otro nombre, número o cambia el filtro de tipo.</p>
+    <ion-button fill="outline" color="light" (click)="searchQuery = ''; selectedType = 'all'">
+      Restablecer filtros
+    </ion-button>
+  </div>
+
+  <!-- Cuadrícula de Pokémon -->
+  <div class="pokemon-grid" *ngIf="!loading && filteredPokemons.length > 0">
+    <div
+      *ngFor="let pokemon of filteredPokemons"
+      class="pokemon-card"
+      (click)="openDetails(pokemon)"
+    >
+      <div class="card-top">
+        <span class="pokemon-id">{{ formatId(pokemon.id) }}</span>
+        <button
+          type="button"
+          class="sound-btn"
+          [class.playing]="currentPlayingId === pokemon.id"
+          (click)="playCry($event, pokemon.id)"
+          title="Escuchar sonido"
+        >
+          <ion-icon [name]="currentPlayingId === pokemon.id ? 'volume-high' : 'volume-medium'"></ion-icon>
+        </button>
+      </div>
+
+      <div class="image-wrapper">
+        <div class="pokeball-bg-watermark"></div>
+        <img
+          [src]="pokemon.image"
+          [alt]="pokemon.name"
+          loading="lazy"
+          class="pokemon-image"
+          (error)="$any($event.target).src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokemon.id + '.png'"
+        />
+      </div>
+
+      <div class="card-bottom">
+        <h4 class="pokemon-name">{{ pokemon.name | titlecase }}</h4>
+        <span class="tap-hint">Toca para ver detalles</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalles Individuales -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" class="pokedex-modal">
+    <ng-template>
+      <div class="modal-wrapper" *ngIf="selectedPokemon">
+        <div class="modal-header">
+          <div class="header-left">
+            <span class="modal-id">{{ formatId(selectedPokemon.id) }}</span>
+            <h2 class="modal-name">{{ selectedPokemon.name | titlecase }}</h2>
+          </div>
+          <div class="header-actions">
+            <button
+              class="shiny-toggle-btn"
+              [class.active]="showShiny"
+              (click)="toggleShiny()"
+              title="Alternar versión Shiny (Variocolor)"
+            >
+              <ion-icon name="sparkles"></ion-icon>
+              <span>{{ showShiny ? 'Shiny ✨' : 'Normal' }}</span>
+            </button>
+            <button class="close-btn" (click)="closeModal()">
+              <ion-icon name="close"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-artwork-card">
+            <div class="artwork-halo"></div>
+            <img
+              [src]="showShiny ? selectedPokemon.shinyImage : selectedPokemon.image"
+              [alt]="selectedPokemon.name"
+              class="detail-image"
+            />
+          </div>
+
+          <div class="sound-deck">
+            <div class="sound-info">
+              <span class="sound-title">Sonido Original (Grito)</span>
+              <span class="sound-desc">Rugido emitido por {{ selectedPokemon.name | titlecase }} en batalla</span>
+            </div>
+
+            <div class="sound-controls">
+              <button
+                class="play-cry-btn"
+                [class.is-playing]="currentPlayingId === selectedPokemon.id"
+                (click)="playCry($event, selectedPokemon.id)"
+              >
+                <ion-icon [name]="currentPlayingId === selectedPokemon.id ? 'volume-high' : 'play'"></ion-icon>
+                <span>
+                  {{ currentPlayingId === selectedPokemon.id ? 'Reproduciendo Sonido...' : 'Escuchar Rugido' }}
+                </span>
+                <div class="equalizer" *ngIf="currentPlayingId === selectedPokemon.id">
+                  <span></span><span></span><span></span><span></span>
+                </div>
+              </button>
+
+              <button
+                class="play-retro-btn"
+                (click)="playCry($event, selectedPokemon.id, true)"
+                title="Sonido clásico Game Boy"
+              >
+                Sonido Retro 👾
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="loadingDetails" class="details-loading">
+            <ion-spinner name="crescent" color="danger"></ion-spinner>
+            <p>Cargando datos de la Pokédex...</p>
+          </div>
+
+          <div *ngIf="!loadingDetails && selectedPokemonDetails" class="details-content">
+            <!-- BOTONES DE PESTAÑAS: Características, Habilidades, Estadísticas, Animaciones -->
+            <div class="detail-nav-buttons">
+              <button
+                type="button"
+                class="detail-tab-btn"
+                [class.active]="detailTab === 'stats'"
+                (click)="setDetailTab('stats')"
+              >
+                <ion-icon name="stats-chart"></ion-icon>
+                <span>Estadísticas</span>
+              </button>
+
+              <button
+                type="button"
+                class="detail-tab-btn"
+                [class.active]="detailTab === 'features'"
+                (click)="setDetailTab('features')"
+              >
+                <ion-icon name="body-outline"></ion-icon>
+                <span>Características</span>
+              </button>
+
+              <button
+                type="button"
+                class="detail-tab-btn"
+                [class.active]="detailTab === 'abilities'"
+                (click)="setDetailTab('abilities')"
+              >
+                <ion-icon name="flash"></ion-icon>
+                <span>Habilidades</span>
+              </button>
+
+              <button
+                type="button"
+                class="detail-tab-btn gif-tab-btn"
+                [class.active]="detailTab === 'gifs'"
+                (click)="setDetailTab('gifs')"
+              >
+                <ion-icon name="film-outline"></ion-icon>
+                <span>Animaciones</span>
+                <span class="gif-count-pill">5 GIFs</span>
+              </button>
+            </div>
+
+            <!-- CONTENIDO 1: ESTADÍSTICAS BASE -->
+            <div class="tab-panel" *ngIf="detailTab === 'stats'">
+              <div class="stats-header">
+                <span class="section-label">Estadísticas de Combate</span>
+                <span class="total-stats">Total Base: <strong>{{ getTotalStats() }}</strong></span>
+              </div>
+
+              <div class="stats-list">
+                <div *ngFor="let s of selectedPokemonDetails.stats" class="stat-row">
+                  <span class="stat-name">{{ translateStat(s.stat.name) }}</span>
+                  <span class="stat-val">{{ s.base_stat }}</span>
+                  <div class="stat-bar-wrapper">
+                    <div
+                      class="stat-bar-fill"
+                      [style.width.%]="getStatPercent(s.base_stat) * 100"
+                      [style.background-color]="getStatColor(s.stat.name)"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONTENIDO 2: CARACTERÍSTICAS Y FÍSICO -->
+            <div class="tab-panel" *ngIf="detailTab === 'features'">
+              <div class="section-block">
+                <span class="section-label">Tipos Elementales</span>
+                <div class="types-row">
+                  <span
+                    *ngFor="let t of selectedPokemonDetails.types"
+                    class="type-badge"
+                    [style.background-color]="getTypeColor(t.type.name)"
+                  >
+                    {{ translateType(t.type.name) | titlecase }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="section-block">
+                <span class="section-label">Medidas y Experiencia</span>
+                <div class="metrics-grid">
+                  <div class="metric-card">
+                    <ion-icon name="scale-outline"></ion-icon>
+                    <span class="metric-val">{{ selectedPokemonDetails.weight / 10 }} kg</span>
+                    <span class="metric-key">Peso Corporal</span>
+                  </div>
+                  <div class="metric-card">
+                    <ion-icon name="body-outline"></ion-icon>
+                    <span class="metric-val">{{ selectedPokemonDetails.height / 10 }} m</span>
+                    <span class="metric-key">Altura Total</span>
+                  </div>
+                  <div class="metric-card">
+                    <ion-icon name="fitness"></ion-icon>
+                    <span class="metric-val">{{ selectedPokemonDetails.base_experience || 'N/A' }} XP</span>
+                    <span class="metric-key">Experiencia Base</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONTENIDO 3: HABILIDADES -->
+            <div class="tab-panel" *ngIf="detailTab === 'abilities'">
+              <span class="section-label">Habilidades de Batalla</span>
+              <div class="abilities-detail-list">
+                <div *ngFor="let ab of selectedPokemonDetails.abilities" class="ability-card-item">
+                  <div class="ability-card-header">
+                    <span class="ability-title">{{ ab.ability.name | titlecase }}</span>
+                    <span class="ability-badge" [class.hidden]="ab.is_hidden">
+                      {{ ab.is_hidden ? 'Habilidad Oculta 🔒' : 'Habilidad Pasiva ⚡' }}
+                    </span>
+                  </div>
+                  <p class="ability-desc">
+                    {{ ab.is_hidden ? 'Habilidad especial poco común que se activa en ciertas condiciones de combate.' : 'Habilidad innata del Pokémon activa durante el combate.' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONTENIDO 4: 5 ANIMACIONES GIF EN TIEMPO REAL -->
+            <div class="tab-panel" *ngIf="detailTab === 'gifs'">
+              <div class="gifs-panel-header">
+                <span class="section-label">5 Animaciones en Vivo (GIFs)</span>
+                <span class="gifs-subtext">Sprites animados extraídos de Pokémon Showdown y Black & White</span>
+              </div>
+
+              <div class="gifs-grid">
+                <div *ngFor="let gif of pokemonGifs" class="gif-card">
+                  <div class="gif-badge-tag">{{ gif.badge }}</div>
+                  <div class="gif-display-area">
+                    <img
+                      [src]="gif.url"
+                      [alt]="gif.title"
+                      loading="lazy"
+                      class="gif-image"
+                      (error)="$any($event.target).src = selectedPokemon.image"
+                    />
+                  </div>
+                  <div class="gif-footer">
+                    <span class="gif-title">{{ gif.title }}</span>
+                    <span class="gif-desc">{{ gif.description }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>

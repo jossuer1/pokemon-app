@@ -1,0 +1,370 @@
+<ion-header [translucent]="true" class="pokedex-header">
+  <ion-toolbar class="header-toolbar">
+    <div class="pokedex-lights" slot="start">
+      <div class="big-blue-lens">
+        <div class="lens-reflection"></div>
+      </div>
+      <div class="small-lights">
+        <span class="light red"></span>
+        <span class="light yellow"></span>
+        <span class="light green"></span>
+      </div>
+    </div>
+
+    <ion-title class="pokedex-title">
+      <span class="brand">Pokédex</span>
+      <span class="edition">2026</span>
+    </ion-title>
+
+    <div slot="end" class="badge-count">
+      VS Arena
+    </div>
+  </ion-toolbar>
+
+  <!-- NAVEGACIÓN PRINCIPAL: 1. Ver Todos | 2. Comparar -->
+  <div class="main-mode-tabs">
+    <a
+      [routerLink]="['/pokedex']"
+      class="mode-tab-btn"
+    >
+      <ion-icon name="list-outline"></ion-icon>
+      <span class="tab-label">1. Ver Todos</span>
+    </a>
+
+    <a
+      [routerLink]="['/compare']"
+      class="mode-tab-btn active"
+    >
+      <ion-icon name="swap-horizontal"></ion-icon>
+      <span class="tab-label">2. Comparar</span>
+      <span class="tab-vs-pill">VS</span>
+    </a>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="pokedex-content">
+  <!-- Spinner inicial -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="pokeball-spinner"></div>
+    <p>Cargando Arena de Combate...</p>
+  </div>
+
+  <div class="compare-container" *ngIf="!loading">
+    <!-- Cabecera de Batalla / Enfrentamiento -->
+    <div class="battle-arena-card">
+      <div class="arena-header">
+        <span class="arena-title">⚔️ Comparador de Batalla Pokémon</span>
+        <button type="button" class="swap-btn" (click)="swapPokemons()" title="Intercambiar posiciones">
+          <ion-icon name="swap-horizontal"></ion-icon>
+          <span>Intercambiar</span>
+        </button>
+      </div>
+
+      <!-- Tarjetas de Selección Lado a Lado -->
+      <div class="fighters-row">
+        <!-- Luchador 1 -->
+        <div class="fighter-slot slot-1">
+          <div class="fighter-card" *ngIf="pokemon1">
+            <span class="slot-badge">Luchador 1</span>
+            <div class="fighter-img-box">
+              <span class="live-gif-badge">GIF 🔴</span>
+              <img
+                [src]="getGifUrl(pokemon1)"
+                [alt]="pokemon1.name"
+                class="fighter-img fighter-gif"
+                (error)="$any($event.target).src = pokemon1.image"
+              />
+            </div>
+            <h3 class="fighter-name">{{ pokemon1.name | titlecase }}</h3>
+            <span class="fighter-id">{{ formatId(pokemon1.id) }}</span>
+
+            <!-- Tipos de P1 -->
+            <div class="fighter-types" *ngIf="pokemon1Details">
+              <span
+                *ngFor="let t of pokemon1Details.types"
+                class="mini-type-badge"
+                [style.background-color]="getTypeColor(t.type.name)"
+              >
+                {{ translateType(t.type.name) }}
+              </span>
+            </div>
+
+            <!-- Botones de Acción para P1 -->
+            <div class="fighter-actions">
+              <button
+                type="button"
+                class="cry-slot-btn"
+                [class.playing]="currentPlayingId === pokemon1.id"
+                (click)="playCry($event, pokemon1.id)"
+              >
+                <ion-icon name="volume-high"></ion-icon>
+                <span>Rugido</span>
+              </button>
+              <button type="button" class="change-slot-btn" (click)="openPicker(1)">
+                Elegir 🔄
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emblema Central VS -->
+        <div class="vs-divider">
+          <div class="vs-circle">
+            <span class="vs-text">VS</span>
+          </div>
+          <span class="vs-spark">⚡</span>
+        </div>
+
+        <!-- Luchador 2 -->
+        <div class="fighter-slot slot-2">
+          <div class="fighter-card" *ngIf="pokemon2">
+            <span class="slot-badge">Luchador 2</span>
+            <div class="fighter-img-box">
+              <span class="live-gif-badge">GIF 🔴</span>
+              <img
+                [src]="getGifUrl(pokemon2)"
+                [alt]="pokemon2.name"
+                class="fighter-img fighter-gif"
+                (error)="$any($event.target).src = pokemon2.image"
+              />
+            </div>
+            <h3 class="fighter-name">{{ pokemon2.name | titlecase }}</h3>
+            <span class="fighter-id">{{ formatId(pokemon2.id) }}</span>
+
+            <!-- Tipos de P2 -->
+            <div class="fighter-types" *ngIf="pokemon2Details">
+              <span
+                *ngFor="let t of pokemon2Details.types"
+                class="mini-type-badge"
+                [style.background-color]="getTypeColor(t.type.name)"
+              >
+                {{ translateType(t.type.name) }}
+              </span>
+            </div>
+
+            <!-- Botones de Acción para P2 -->
+            <div class="fighter-actions">
+              <button
+                type="button"
+                class="cry-slot-btn"
+                [class.playing]="currentPlayingId === pokemon2.id"
+                (click)="playCry($event, pokemon2.id)"
+              >
+                <ion-icon name="volume-high"></ion-icon>
+                <span>Rugido</span>
+              </button>
+              <button type="button" class="change-slot-btn" (click)="openPicker(2)">
+                Elegir 🔄
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spinner mientras cargan detalles -->
+    <div *ngIf="loadingDetails1 || loadingDetails2" class="compare-loading">
+      <ion-spinner name="crescent" color="danger"></ion-spinner>
+      <p>Analizando estadísticas de ambos Pokémon...</p>
+    </div>
+
+    <!-- Comparativa Detallada -->
+    <div class="comparison-details" *ngIf="!loadingDetails1 && !loadingDetails2 && pokemon1Details && pokemon2Details">
+      <!-- Banner de Ganador General -->
+      <div class="winner-banner" [class.p1-wins]="getTotalWinnerInfo().winner === 1" [class.p2-wins]="getTotalWinnerInfo().winner === 2">
+        <ion-icon name="trophy" class="trophy-icon"></ion-icon>
+        <div class="winner-text">
+          <ng-container *ngIf="getTotalWinnerInfo().winner !== 0">
+            <strong>{{ getTotalWinnerInfo().name | titlecase }}</strong> lidera el poder total con
+            <strong>{{ getTotalWinnerInfo().winner === 1 ? getTotalWinnerInfo().t1 : getTotalWinnerInfo().t2 }}</strong> puntos
+            <span class="diff-badge">(+{{ getTotalWinnerInfo().diff }} pts de ventaja)</span>
+          </ng-container>
+          <ng-container *ngIf="getTotalWinnerInfo().winner === 0">
+            <strong>¡Empate exacto!</strong> Ambos tienen {{ getTotalWinnerInfo().t1 }} puntos totales.
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Sección 1: Comparativa de Estadísticas Base (Dual Bars) -->
+      <div class="compare-section">
+        <div class="section-title-row">
+          <span class="compare-section-title">📊 Comparativa de Estadísticas Base</span>
+          <div class="legend">
+            <span class="legend-dot p1-dot"></span> {{ pokemon1?.name | titlecase }}
+            <span class="legend-dot p2-dot"></span> {{ pokemon2?.name | titlecase }}
+          </div>
+        </div>
+
+        <div class="stats-comparison-table">
+          <div *ngFor="let statName of statsToCompare" class="stat-compare-card">
+            <div class="stat-compare-header">
+              <span class="stat-label-title">{{ getStatComparison(statName).displayName }}</span>
+              <span
+                class="stat-advantage-badge"
+                *ngIf="getStatComparison(statName).winner !== 0"
+                [class.p1-adv]="getStatComparison(statName).winner === 1"
+                [class.p2-adv]="getStatComparison(statName).winner === 2"
+              >
+                {{ getStatComparison(statName).winner === 1 ? (pokemon1?.name | titlecase) : (pokemon2?.name | titlecase) }}
+                +{{ getStatComparison(statName).diff }}
+              </span>
+              <span class="stat-advantage-badge tie" *ngIf="getStatComparison(statName).winner === 0">
+                Empate
+              </span>
+            </div>
+
+            <!-- Barra dual enfrentada -->
+            <div class="dual-bar-container">
+              <!-- Barra P1 -->
+              <div class="bar-side left-side">
+                <span class="stat-num" [class.is-winner]="getStatComparison(statName).winner === 1">
+                  {{ getStatComparison(statName).p1Val }}
+                </span>
+                <div class="bar-track">
+                  <div
+                    class="bar-fill left-fill"
+                    [style.width.%]="getStatComparison(statName).p1Pct"
+                    [style.background-color]="getStatComparison(statName).color"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Barra P2 -->
+              <div class="bar-side right-side">
+                <div class="bar-track">
+                  <div
+                    class="bar-fill right-fill"
+                    [style.width.%]="getStatComparison(statName).p2Pct"
+                    [style.background-color]="getStatComparison(statName).color"
+                  ></div>
+                </div>
+                <span class="stat-num" [class.is-winner]="getStatComparison(statName).winner === 2">
+                  {{ getStatComparison(statName).p2Val }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total de Estadísticas -->
+          <div class="total-stats-row">
+            <div class="total-side left">
+              <span class="total-label">{{ pokemon1?.name | titlecase }} Total:</span>
+              <span class="total-number">{{ getTotalStatsFor(pokemon1Details) }}</span>
+            </div>
+            <span class="total-divider">TOTAL</span>
+            <div class="total-side right">
+              <span class="total-label">{{ pokemon2?.name | titlecase }} Total:</span>
+              <span class="total-number">{{ getTotalStatsFor(pokemon2Details) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 2: Comparativa Física (Peso y Altura) -->
+      <div class="compare-section">
+        <span class="compare-section-title">⚖️ Comparativa Física y Experiencia</span>
+        <div class="metrics-comparison-grid">
+          <!-- Peso -->
+          <div class="metric-compare-item">
+            <span class="metric-name">Peso</span>
+            <div class="metric-values">
+              <span class="m-val p1">{{ pokemon1Details.weight / 10 }} kg</span>
+              <span class="m-vs">vs</span>
+              <span class="m-val p2">{{ pokemon2Details.weight / 10 }} kg</span>
+            </div>
+            <span class="metric-winner-hint" *ngIf="pokemon1Details.weight !== pokemon2Details.weight">
+              {{ pokemon1Details.weight > pokemon2Details.weight ? (pokemon1?.name | titlecase) : (pokemon2?.name | titlecase) }}
+              es más pesado (+{{ (pokemon1Details.weight - pokemon2Details.weight > 0 ? (pokemon1Details.weight - pokemon2Details.weight) : (pokemon2Details.weight - pokemon1Details.weight)) / 10 }} kg)
+            </span>
+          </div>
+
+          <!-- Altura -->
+          <div class="metric-compare-item">
+            <span class="metric-name">Altura</span>
+            <div class="metric-values">
+              <span class="m-val p1">{{ pokemon1Details.height / 10 }} m</span>
+              <span class="m-vs">vs</span>
+              <span class="m-val p2">{{ pokemon2Details.height / 10 }} m</span>
+            </div>
+            <span class="metric-winner-hint" *ngIf="pokemon1Details.height !== pokemon2Details.height">
+              {{ pokemon1Details.height > pokemon2Details.height ? (pokemon1?.name | titlecase) : (pokemon2?.name | titlecase) }}
+              es más alto (+{{ (pokemon1Details.height - pokemon2Details.height > 0 ? (pokemon1Details.height - pokemon2Details.height) : (pokemon2Details.height - pokemon1Details.height)) / 10 }} m)
+            </span>
+          </div>
+
+          <!-- Experiencia Base -->
+          <div class="metric-compare-item">
+            <span class="metric-name">Experiencia Base</span>
+            <div class="metric-values">
+              <span class="m-val p1">{{ pokemon1Details.base_experience || 'N/A' }} XP</span>
+              <span class="m-vs">vs</span>
+              <span class="m-val p2">{{ pokemon2Details.base_experience || 'N/A' }} XP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 3: Habilidades de Ambos -->
+      <div class="compare-section">
+        <span class="compare-section-title">✨ Habilidades en Combate</span>
+        <div class="abilities-compare-columns">
+          <div class="abilities-col">
+            <span class="col-owner">{{ pokemon1?.name | titlecase }}</span>
+            <div class="abilities-pill-group">
+              <span *ngFor="let ab of pokemon1Details.abilities" class="ability-tag" [class.is-hidden]="ab.is_hidden">
+                {{ ab.ability.name | titlecase }}
+                <small *ngIf="ab.is_hidden">(Oculta)</small>
+              </span>
+            </div>
+          </div>
+
+          <div class="abilities-col">
+            <span class="col-owner">{{ pokemon2?.name | titlecase }}</span>
+            <div class="abilities-pill-group">
+              <span *ngFor="let ab of pokemon2Details.abilities" class="ability-tag" [class.is-hidden]="ab.is_hidden">
+                {{ ab.ability.name | titlecase }}
+                <small *ngIf="ab.is_hidden">(Oculta)</small>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Selector de Pokémon para Comparar -->
+  <ion-modal [isOpen]="isPickerOpen" (didDismiss)="closePicker()" class="picker-modal">
+    <ng-template>
+      <div class="picker-wrapper">
+        <div class="picker-header">
+          <h3>Elegir para Luchador {{ pickerTarget }}</h3>
+          <button type="button" class="close-picker-btn" (click)="closePicker()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+
+        <div class="picker-search-bar">
+          <ion-searchbar
+            [(ngModel)]="pickerSearchQuery"
+            placeholder="Buscar por nombre o #..."
+            [debounce]="100"
+            show-clear-button="focus"
+            class="custom-searchbar"
+          ></ion-searchbar>
+        </div>
+
+        <div class="picker-grid">
+          <div
+            *ngFor="let p of pickerFilteredPokemons"
+            class="picker-card"
+            (click)="choosePokemon(p)"
+          >
+            <span class="picker-id">{{ formatId(p.id) }}</span>
+            <img [src]="p.image" [alt]="p.name" loading="lazy" class="picker-img" />
+            <span class="picker-name">{{ p.name | titlecase }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>
