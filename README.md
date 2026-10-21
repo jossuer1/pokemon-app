@@ -93,7 +93,7 @@ Aplicación móvil/web de una **Pokédex** (primera generación, 151 Pokémon) c
 
 **Capturas:**
 
-| Arena VS | Selector de Pokémon | Comparativa de estadísticas |
+| Comparativa de Pokemon |
 | :---: | :---: | :---: |
 | ![Arena](docs/screenshots/nivel3-arena.jpeg) | 
 
