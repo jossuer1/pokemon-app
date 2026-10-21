@@ -15,6 +15,7 @@ Aplicación móvil/web de una **Pokédex** (primera generación, 151 Pokémon) c
 - [Instalación y ejecución](#instalación-y-ejecución)
 - [Ejecutar en Android](#ejecutar-en-android)
 - [APIs y recursos utilizados](#apis-y-recursos-utilizados)
+- [Autores](#autores)
 
 ---
 
@@ -29,7 +30,7 @@ Aplicación móvil/web de una **Pokédex** (primera generación, 151 Pokémon) c
 - **Buscador** por nombre o número (ej. `Pikachu`, `25`, `#025`) con `ion-searchbar`.
 - **Filtro por tipo** (Fuego, Agua, Planta, Eléctrico, etc.) con chips deslizables o en cuadrícula.
 - **Cuadrícula de tarjetas** con el artwork oficial de cada Pokémon.
-- Al tocar una tarjeta se abre un **modal de detalles** con 3 pestañas de información:
+- Al tocar una tarjeta se abre un **modal de detalles** con pestañas de información:
    - **Estadísticas:** HP, Ataque, Defensa, Atq. Esp., Def. Esp., Velocidad y total base.
    - **Características:** tipos, peso, altura y experiencia base.
    - **Habilidades:** habilidades pasivas y ocultas.
@@ -40,11 +41,11 @@ Aplicación móvil/web de una **Pokédex** (primera generación, 151 Pokémon) c
 
 | Listado y buscador | Filtro por tipo | Detalle del Pokémon |
 | :---: | :---: | :---: |
-| ![Listado y buscador](docs/screenshots/nivel1-listado.jpeg) | ![Filtro por tipo](docs/screenshots/nivel1-filtro-tipo.jpeg) | ![Detalle](docs/screenshots/nivel1-detalle.jpeg) |
+| <img src="docs/screenshots/nivel1-listado.jpeg" alt="Listado y buscador" width="250"> | <img src="docs/screenshots/nivel1-filtro-tipo.jpeg" alt="Filtro por tipo" width="250"> | <img src="docs/screenshots/nivel1-detalle.jpeg" alt="Detalle del Pokémon" width="250"> |
 
 | Búsqueda por nombre | Pestaña Características | Pestaña Habilidades |
 | :---: | :---: | :---: |
-| ![Búsqueda](docs/screenshots/nivel1-busqueda.jpeg) | ![Características](docs/screenshots/nivel1-caracteristicas.jpeg) | ![Habilidades](docs/screenshots/nivel1-habilidades.jpeg) |
+| <img src="docs/screenshots/nivel1-busqueda.jpeg" alt="Búsqueda por nombre" width="250"> | <img src="docs/screenshots/nivel1-caracteristicas.jpeg" alt="Pestaña Características" width="250"> | <img src="docs/screenshots/nivel1-habilidades.jpeg" alt="Pestaña Habilidades" width="250"> |
 
 ---
 
@@ -70,8 +71,7 @@ Aplicación móvil/web de una **Pokédex** (primera generación, 151 Pokémon) c
 
 | Reproducción de sonido | Sonido retro | Galería de 5 GIFs |
 | :---: | :---: | :---: |
-| ![Sonido](docs/screenshots/nivel2-sonido.jpeg) | ![Sonido retro](docs/screenshots/nivel2-sonido-retro.jpeg) | ![Galería](docs/screenshots/nivel2-galeria.jpeg) |
-
+| <img src="docs/screenshots/nivel2-sonido.jpeg" alt="Reproducción de sonido" width="250"> | <img src="docs/screenshots/nivel2-sonido-retro.jpeg" alt="Sonido retro" width="250"> | <img src="docs/screenshots/nivel2-galeria.jpeg" alt="Galería de 5 GIFs" width="250"> |
 
 ---
 
@@ -91,11 +91,11 @@ Aplicación móvil/web de una **Pokédex** (primera generación, 151 Pokémon) c
    - Peso, altura y experiencia base lado a lado.
    - Habilidades de ambos Pokémon.
 
-**Capturas:**
+**Captura:**
 
-| Comparativa de Pokemon |
-| :---: | :---: | :---: |
-| ![Arena](docs/screenshots/nivel3-arena.jpeg) | 
+<p align="center">
+  <img src="docs/screenshots/nivel3-arena.jpeg" alt="Comparativa de dos Pokémon" width="300">
+</p>
 
 ---
 
@@ -148,7 +148,7 @@ pokemon-app/
 
 ```bash
 # 1. Clonar el repositorio
-git clone <https://github.com/jossuer1/pokemon-app>
+git clone https://github.com/jossuer1/pokemon-app
 cd pokemon-app
 
 # 2. Instalar dependencias
@@ -165,9 +165,9 @@ La aplicación estará disponible en `http://localhost:4200`.
 ### Otros comandos
 
 ```bash
-npm run build # Compilar para producción (genera la carpeta www/)
-npm test # Ejecutar pruebas unitarias
-npm run lint # Revisar el código con ESLint
+npm run build   # Compilar para producción (genera la carpeta www/)
+npm test        # Ejecutar pruebas unitarias
+npm run lint    # Revisar el código con ESLint
 ```
 
 ---
@@ -203,8 +203,9 @@ Desde Android Studio, selecciona un dispositivo o emulador y presiona **Run**.
 
 ## Autores
 
-**Josue Patiño**
-**Ariana Villota**
-Estudiante de Desarrollo de Software — ESFOT, Escuela Politécnica Nacional
+- **Josue Patiño**
+- **Ariana Villota**
+
+Estudiantes de Desarrollo de Software — ESFOT, Escuela Politécnica Nacional
 
 ---
