@@ -1,0 +1,7 @@
+{
+  "name": "pokeapp2026b",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

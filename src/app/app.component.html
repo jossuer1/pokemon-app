@@ -1,0 +1,55 @@
+<ion-app>
+  <!-- Splash Screen Interactivo / Pantalla de Carga Inicial con Pichu y Raichu -->
+  <div
+    *ngIf="showSplash"
+    class="poke-splash-overlay"
+    [class.fade-out]="isFading"
+    (click)="dismissSplash()"
+    role="dialog"
+    aria-label="Pantalla de inicio Pokédex"
+  >
+    <div class="splash-backdrop-glow"></div>
+
+    <div class="splash-card">
+      <!-- Ilustración de Splash Screen con Pichu y Raichu -->
+      <div class="splash-media-frame">
+        <div class="splash-halo"></div>
+        <img
+          src="assets/logo/pokemon_splash_screen.png"
+          alt="Pokédex con Pichu y Raichu"
+          class="splash-image"
+        />
+        <!-- Efectos eléctricos flotantes con iconos -->
+        <div class="electric-sparks-float">
+          <ion-icon name="flash" class="spark spark-1"></ion-icon>
+          <ion-icon name="sparkles" class="spark spark-2"></ion-icon>
+          <ion-icon name="flash" class="spark spark-3"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Barra de progreso animada y pie de bienvenida -->
+      <div class="splash-footer-box">
+        <div class="splash-progress-track">
+          <div class="splash-progress-bar"></div>
+        </div>
+
+        <div class="splash-actions-row">
+          <span class="splash-edition-tag">
+            <ion-icon name="flash-outline"></ion-icon>
+            Pichu &amp; Raichu Edition
+          </span>
+          <button
+            type="button"
+            class="splash-skip-button"
+            (click)="dismissSplash(); $event.stopPropagation()"
+          >
+            <span>Entrar</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ion-router-outlet></ion-router-outlet>
+</ion-app>
