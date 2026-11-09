@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonApp, IonRouterOutlet, IonIcon } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { flash, sparkles, flashOutline, arrowForwardOutline } from 'ionicons/icons';
+import { EntryScreenService } from './services/entry-screen';
 
 @Component({
   selector: 'app-root',
@@ -10,11 +12,13 @@ import { flash, sparkles, flashOutline, arrowForwardOutline } from 'ionicons/ico
   styleUrls: ['app.component.scss'],
   imports: [CommonModule, IonApp, IonRouterOutlet, IonIcon],
 })
-export class AppComponent implements OnInit {
-  showSplash = true;
+export class AppComponent {
   isFading = false;
 
-  constructor() {
+  constructor(
+    public entryScreen: EntryScreenService,
+    private router: Router
+  ) {
     addIcons({
       flash,
       sparkles,
@@ -23,18 +27,13 @@ export class AppComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    // Auto descartar la pantalla de carga luego de 2.4s con transición suave
-    setTimeout(() => {
-      this.dismissSplash();
-    }, 2400);
-  }
-
-  dismissSplash() {
-    if (this.isFading || !this.showSplash) return;
+  dismissSplash(targetRoute: string = '/pokedex') {
+    if (this.isFading) return;
     this.isFading = true;
     setTimeout(() => {
-      this.showSplash = false;
+      this.entryScreen.hide();
+      this.isFading = false;
+      void this.router.navigate([targetRoute]);
     }, 450);
   }
 }

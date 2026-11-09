@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -51,6 +51,8 @@ import {
   lockClosedOutline,
   hardwareChipOutline,
   searchOutline,
+  barChartOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 import {
   PokemonService,
@@ -59,6 +61,7 @@ import {
   TypeFilter,
   TYPE_FILTERS,
 } from '../../services/pokemon';
+import { EntryScreenService } from '../../services/entry-screen';
 
 @Component({
   selector: 'app-pokedex',
@@ -105,7 +108,11 @@ export class PokedexPage implements OnInit {
   typeFilters: TypeFilter[] = TYPE_FILTERS;
   private typeCache = new Map<string, Set<string>>();
 
-  constructor(public pokemonService: PokemonService) {
+  constructor(
+    public pokemonService: PokemonService,
+    private router: Router,
+    private entryScreen: EntryScreenService
+  ) {
     addIcons({
       volumeHigh,
       volumeMedium,
@@ -143,7 +150,14 @@ export class PokedexPage implements OnInit {
       lockClosedOutline,
       hardwareChipOutline,
       searchOutline,
+      logOutOutline,
+      barChartOutline,
     });
+  }
+
+  exitToWelcome(): void {
+    this.entryScreen.show();
+    void this.router.navigate(['/pokedex']);
   }
 
   setDetailTab(tab: 'stats' | 'features' | 'abilities' | 'gifs') {

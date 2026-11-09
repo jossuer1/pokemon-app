@@ -1,12 +1,11 @@
 <ion-app>
   <!-- Splash Screen Interactivo / Pantalla de Carga Inicial con Pichu y Raichu -->
   <div
-    *ngIf="showSplash"
+    *ngIf="entryScreen.isVisible$ | async"
     class="poke-splash-overlay"
     [class.fade-out]="isFading"
-    (click)="dismissSplash()"
     role="dialog"
-    aria-label="Pantalla de inicio Pokédex"
+    aria-labelledby="entry-title"
   >
     <div class="splash-backdrop-glow"></div>
 
@@ -29,21 +28,18 @@
 
       <!-- Barra de progreso animada y pie de bienvenida -->
       <div class="splash-footer-box">
-        <div class="splash-progress-track">
-          <div class="splash-progress-bar"></div>
+        <div class="splash-welcome-copy">
+          <h1 id="entry-title">Tu aventura comienza aqui</h1>
+          <p>Explora la Pokedex, descubre estadisticas y prepara tu proxima batalla.</p>
         </div>
 
         <div class="splash-actions-row">
-          <span class="splash-edition-tag">
-            <ion-icon name="flash-outline"></ion-icon>
-            Pichu &amp; Raichu Edition
-          </span>
           <button
             type="button"
             class="splash-skip-button"
-            (click)="dismissSplash(); $event.stopPropagation()"
+            (click)="dismissSplash('/pokedex')"
           >
-            <span>Entrar</span>
+            <span>Entrar a Ver Todos</span>
             <ion-icon name="arrow-forward-outline"></ion-icon>
           </button>
         </div>

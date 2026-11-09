@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -31,12 +31,14 @@ import {
   barChartOutline,
   sparklesOutline,
   searchOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 import {
   PokemonService,
   PokemonListItem,
   StatCompareResult,
 } from '../../services/pokemon';
+import { EntryScreenService } from '../../services/entry-screen';
 
 @Component({
   selector: 'app-compare',
@@ -87,7 +89,11 @@ export class ComparePage implements OnInit {
     'speed',
   ];
 
-  constructor(public pokemonService: PokemonService) {
+  constructor(
+    public pokemonService: PokemonService,
+    private router: Router,
+    private entryScreen: EntryScreenService
+  ) {
     addIcons({
       volumeHigh,
       volumeMedium,
@@ -106,7 +112,13 @@ export class ComparePage implements OnInit {
       barChartOutline,
       sparklesOutline,
       searchOutline,
+      logOutOutline,
     });
+  }
+
+  exitToWelcome(): void {
+    this.entryScreen.show();
+    void this.router.navigate(['/pokedex']);
   }
 
   ngOnInit() {

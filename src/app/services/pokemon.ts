@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { tap, map, catchError, switchMap } from 'rxjs/operators';
 
 export interface PokemonListItem {
   id: number;
@@ -22,6 +22,104 @@ export interface PokemonGifItem {
   icon?: string;
   description: string;
 }
+
+export interface GenerationSpeciesItem {
+  id: number;
+  name: string;
+  url: string;
+  image: string;
+  shinyImage: string;
+  gifUrl: string;
+  cryUrl: string;
+  legacyCryUrl: string;
+  formattedId: string;
+}
+
+export interface GenerationSummary {
+  id: number;
+  name: string;
+  displayName: string;
+  shortName: string;
+  region: string;
+  pokemonCount: number;
+  color: string;
+  icon: string;
+  pokemonSpecies: GenerationSpeciesItem[];
+}
+
+export interface GenerationsOverview {
+  totalPokemon: number;
+  generations: GenerationSummary[];
+}
+
+export const GENERATION_CONFIG: Record<
+  number,
+  { displayName: string; shortName: string; region: string; color: string; icon: string }
+> = {
+  1: {
+    displayName: 'Generacion 1',
+    shortName: 'Gen 1',
+    region: 'Kanto',
+    color: '#EE5253',
+    icon: 'flame-outline',
+  },
+  2: {
+    displayName: 'Generacion 2',
+    shortName: 'Gen 2',
+    region: 'Johto',
+    color: '#FBC531',
+    icon: 'sparkles-outline',
+  },
+  3: {
+    displayName: 'Generacion 3',
+    shortName: 'Gen 3',
+    region: 'Hoenn',
+    color: '#10AC84',
+    icon: 'leaf-outline',
+  },
+  4: {
+    displayName: 'Generacion 4',
+    shortName: 'Gen 4',
+    region: 'Sinnoh',
+    color: '#3867D6',
+    icon: 'diamond-outline',
+  },
+  5: {
+    displayName: 'Generacion 5',
+    shortName: 'Gen 5',
+    region: 'Unova',
+    color: '#57606F',
+    icon: 'hardware-chip-outline',
+  },
+  6: {
+    displayName: 'Generacion 6',
+    shortName: 'Gen 6',
+    region: 'Kalos',
+    color: '#8854D0',
+    icon: 'shield-outline',
+  },
+  7: {
+    displayName: 'Generacion 7',
+    shortName: 'Gen 7',
+    region: 'Alola',
+    color: '#FA8231',
+    icon: 'sunny-outline',
+  },
+  8: {
+    displayName: 'Generacion 8',
+    shortName: 'Gen 8',
+    region: 'Galar',
+    color: '#45AAF2',
+    icon: 'trophy-outline',
+  },
+  9: {
+    displayName: 'Generacion 9',
+    shortName: 'Gen 9',
+    region: 'Paldea',
+    color: '#EB3B5A',
+    icon: 'planet-outline',
+  },
+};
 
 export interface TypeFilter {
   id: string;
@@ -71,6 +169,7 @@ export class PokemonService {
   private detailsCache = new Map<number | string, any>();
   private typeCache = new Map<string, Set<string>>();
   private pokemonsCache: PokemonListItem[] | null = null;
+  private generationsOverviewCache: GenerationsOverview | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -304,5 +403,111 @@ export class PokemonService {
       effectivenessLabel: label,
       effectivenessClass: cssClass,
     };
+  }
+
+  // Obtener resumen y contadores de todas las generaciones
+  getGenerationsOverview(forceRefresh = false): Observable<GenerationsOverview> {
+    if (this.generationsOverviewCache && !forceRefresh) {
+      return of(this.generationsOverviewCache);
+    }
+
+    return this.http.get<{ results: { name: string; url: string }[] }>(`${this.apiUrl}/generation/`).pipe(
+      switchMap((res) => {
+        const generationList = (res.results || [])
+          .map((item) => ({
+            name: item.name,
+            url: item.url,
+            id: this.extractIdFromUrl(item.url),
+          }))
+          .sort((a, b) => a.id - b.id);
+
+        if (generationList.length === 0) {
+          return of({ totalPokemon: 0, generations: [] });
+        }
+
+        const requests = generationList.map((item) =>
+          this.http.get<any>(item.url).pipe(
+            catchError((err) => {
+              console.error(`Error al cargar datos de ${item.name}:`, err);
+              return of(null);
+            })
+          )
+        );
+
+        return forkJoin(requests).pipe(
+          map((detailsList) => {
+            const generations: GenerationSummary[] = [];
+
+            detailsList.forEach((genDetail, index) => {
+              const fallbackId = generationList[index]?.id || index + 1;
+              const id = genDetail?.id || fallbackId;
+              const rawName = genDetail?.name || generationList[index]?.name || `generation-${id}`;
+              const config = GENERATION_CONFIG[id] || {
+                displayName: `Generacion ${id}`,
+                shortName: `Gen ${id}`,
+                region: genDetail?.main_region?.name || 'Kanto',
+                color: '#3b82f6',
+                icon: 'apps-outline',
+              };
+
+              const rawSpecies: any[] = genDetail?.pokemon_species || [];
+              const pokemonSpecies: GenerationSpeciesItem[] = rawSpecies.map((sp) => {
+                const spId = this.extractIdFromUrl(sp.url);
+                return {
+                  id: spId,
+                  name: sp.name,
+                  url: sp.url,
+                  image: this.getArtworkUrl(spId),
+                  shinyImage: this.getShinyArtworkUrl(spId),
+                  gifUrl: this.getAnimatedGifUrl(spId),
+                  cryUrl: this.getCryUrl(spId),
+                  legacyCryUrl: this.getLegacyCryUrl(spId),
+                  formattedId: this.formatId(spId),
+                };
+              });
+
+              // Ordenar por ID del Pokemon ascendente
+              pokemonSpecies.sort((a, b) => a.id - b.id);
+
+              // Conteo exacto desde el campo pokemon_species de la API
+              const pokemonCount = pokemonSpecies.length;
+
+              const rawRegion = genDetail?.main_region?.name || config.region;
+              const formattedRegion = rawRegion
+                ? rawRegion.charAt(0).toUpperCase() + rawRegion.slice(1)
+                : config.region;
+
+              generations.push({
+                id,
+                name: rawName,
+                displayName: config.displayName,
+                shortName: config.shortName,
+                region: formattedRegion,
+                pokemonCount,
+                color: config.color,
+                icon: config.icon,
+                pokemonSpecies,
+              });
+            });
+
+            generations.sort((a, b) => a.id - b.id);
+
+            const totalPokemon = generations.reduce((sum, g) => sum + g.pokemonCount, 0);
+            const overview: GenerationsOverview = {
+              totalPokemon,
+              generations,
+            };
+
+            this.generationsOverviewCache = overview;
+            return overview;
+          })
+        );
+      })
+    );
+  }
+
+  // Limpiar cache de generaciones si se necesita recargar
+  clearGenerationsCache(): void {
+    this.generationsOverviewCache = null;
   }
 }

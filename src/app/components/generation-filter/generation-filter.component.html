@@ -1,0 +1,28 @@
+<div class="generation-filter-wrapper">
+  <div class="filter-scroll-track">
+    <!-- Opcion: Todas las generaciones -->
+    <button
+      type="button"
+      class="filter-chip-btn"
+      [class.active]="selectedGenId === null"
+      (click)="onSelect(null)"
+    >
+      <ion-icon name="apps-outline" class="chip-icon"></ion-icon>
+      <span class="chip-text">Todas</span>
+    </button>
+
+    <!-- Opciones: Gen 1 a Gen 9 -->
+    <button
+      type="button"
+      *ngFor="let gen of generations"
+      class="filter-chip-btn"
+      [class.active]="selectedGenId === gen.id"
+      [style.--chip-accent]="gen.color"
+      (click)="onSelect(gen.id)"
+    >
+      <span class="chip-color-dot" [style.background-color]="gen.color"></span>
+      <span class="chip-text">{{ gen.shortName }}</span>
+    </button>
+  </div>
+</div>
+

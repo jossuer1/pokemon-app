@@ -19,19 +19,23 @@
       </div>
     </ion-title>
 
-    <div slot="end" class="badge-count">
-      VS Arena
+    <div slot="end" class="header-actions">
+      <div class="badge-count">VS Arena</div>
+      <button type="button" class="exit-app-button" (click)="exitToWelcome()" aria-label="Salir">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span class="exit-label">Salir</span>
+      </button>
     </div>
   </ion-toolbar>
 
-  <!-- NAVEGACIÓN PRINCIPAL: 1. Ver Todos | 2. Comparar -->
+  <!-- Navegacion principal -->
   <div class="main-mode-tabs">
     <a
       [routerLink]="['/pokedex']"
       class="mode-tab-btn"
     >
       <ion-icon name="list-outline"></ion-icon>
-      <span class="tab-label">1. Ver Todos</span>
+      <span class="tab-label">Ver Todos</span>
     </a>
 
     <a
@@ -39,8 +43,16 @@
       class="mode-tab-btn active"
     >
       <ion-icon name="swap-horizontal"></ion-icon>
-      <span class="tab-label">2. Comparar</span>
+      <span class="tab-label">Batallas</span>
       <span class="tab-vs-pill">VS</span>
+    </a>
+
+    <a
+      [routerLink]="['/stats']"
+      class="mode-tab-btn"
+    >
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span class="tab-label">Estadisticas</span>
     </a>
   </div>
 </ion-header>
