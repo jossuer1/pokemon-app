@@ -2,15 +2,20 @@
 
 ## Preparar esta aplicación
 
-La rama master incluye inicio, Pokédex, comparador, estadísticas e iconos.
-Android usa actualmente `applicationId "io.ionic.starter"`, versión `1.0`
-y `versionCode 1`. Antes de la primera publicación conviene elegir un
-identificador propio definitivo (por ejemplo, `com.jossuer1.pokedex`).
-Si cambias el identificador, actualiza `appId` en `capacitor.config.ts`,
-`applicationId` en `android/app/build.gradle` y las cadenas `package_name`
-y `custom_url_scheme` de `android/app/src/main/res/values/strings.xml`.
-Puedes mantener el namespace y el paquete Java de MainActivity actuales.
-Si ya publicaste esta aplicación, conserva su identificador y su clave originales.
+La aplicación incluye inicio, Pokédex, comparador, estadísticas e iconos.
+Android usa `applicationId "com.jossuer1.pokedex"`, versión `1.0`
+y `versionCode 1`. El identificador está configurado en Capacitor, Gradle
+y los recursos Android. Su disponibilidad en Uptodown se confirma al enviarlo.
+El namespace y el paquete Java de MainActivity siguen siendo `io.ionic.starter`;
+son internos y no determinan el identificador registrado por la tienda.
+
+El error de paquete registrado para `io.ionic.starter` se resuelve generando
+un APK nuevo con este identificador propio. Cambiar solamente el nombre del
+archivo APK no modifica su identificador ni su firma.
+Si ya publicaste una versión aceptada, conserva su identificador y su clave originales.
+
+Existe un APK generado anteriormente en `android/app/release/`; no lo subas
+hasta regenerarlo con esta configuración. La carpeta se excluye de Git.
 
 Configura JDK 21 como Gradle JDK en Android Studio. El SDK de este proyecto
 es Android 36 y su mínimo es Android 7.0 (API 24).
@@ -36,6 +41,8 @@ Se usa `.cmd` para funcionar también cuando PowerShell bloquea `npm.ps1`.
    Completa los datos del certificado con tus propios datos.
 5. Selecciona el módulo `app`, la variante **release** y genera el APK.
    Si aparecen opciones de firma, habilita V1 y V2.
+   La variante release tiene `debuggable false`. No selecciones `app-debug.apk`.
+   Un APK release sin firma tampoco está listo para publicar: completa este asistente.
 6. Usa **Locate** al finalizar para localizar el APK firmado. Según la versión
    de Android Studio y el destino elegido, puede quedar en `android/app/release/`
    o en `android/app/build/outputs/apk/release/`.
@@ -44,6 +51,11 @@ Se usa `.cmd` para funcionar también cuando PowerShell bloquea `npm.ps1`.
 ```powershell
 & 'C:\Android\Sdk\build-tools\36.0.0\apksigner.bat' verify --verbose --print-certs 'RUTA\app-release.apk'
 ```
+
+En Android Studio, **Build > Analyze APK**, abre el APK recién generado y
+revisa su `AndroidManifest.xml`: el paquete debe ser `com.jossuer1.pokedex`
+y `android:debuggable` debe estar ausente o ser `false`.
+Comprueba también que el certificado no sea `Android Debug`.
 
 Conserva dos respaldos privados del `.jks`, su alias y las contraseñas.
 Necesitarás la misma clave para todas las actualizaciones. No subas la clave
