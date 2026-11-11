@@ -68,3 +68,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Private Android release signing material
+*.jks
+*.keystore
+keystore.properties
