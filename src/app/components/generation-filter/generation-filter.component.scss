@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.generation-filter-wrapper {
+  width: 100%;
+  overflow: hidden;
+  padding: 4px 0 8px;
+}
+
+.filter-scroll-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filter-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(13, 34, 89, 0.04);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  .chip-icon {
+    font-size: 0.95rem;
+    color: #64748b;
+  }
+
+  .chip-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(13, 34, 89, 0.08);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.active {
+    background: #0d2259;
+    color: #ffffff;
+    border-color: #0d2259;
+    box-shadow: 0 4px 14px rgba(13, 34, 89, 0.25);
+
+    .chip-icon {
+      color: #ffd700;
+    }
+
+    .chip-color-dot {
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+

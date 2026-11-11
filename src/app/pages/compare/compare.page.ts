@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -26,12 +26,19 @@ import {
   scaleOutline,
   bodyOutline,
   fitness,
+  syncOutline,
+  flashOutline,
+  barChartOutline,
+  sparklesOutline,
+  searchOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 import {
   PokemonService,
   PokemonListItem,
   StatCompareResult,
 } from '../../services/pokemon';
+import { EntryScreenService } from '../../services/entry-screen';
 
 @Component({
   selector: 'app-compare',
@@ -82,7 +89,11 @@ export class ComparePage implements OnInit {
     'speed',
   ];
 
-  constructor(public pokemonService: PokemonService) {
+  constructor(
+    public pokemonService: PokemonService,
+    private router: Router,
+    private entryScreen: EntryScreenService
+  ) {
     addIcons({
       volumeHigh,
       volumeMedium,
@@ -96,7 +107,18 @@ export class ComparePage implements OnInit {
       scaleOutline,
       bodyOutline,
       fitness,
+      syncOutline,
+      flashOutline,
+      barChartOutline,
+      sparklesOutline,
+      searchOutline,
+      logOutOutline,
     });
+  }
+
+  exitToWelcome(): void {
+    this.entryScreen.show();
+    void this.router.navigate(['/pokedex']);
   }
 
   ngOnInit() {
@@ -298,5 +320,22 @@ export class ComparePage implements OnInit {
 
   getGifUrl(pokemon: PokemonListItem | null): string {
     return pokemon ? this.pokemonService.getAnimatedGifUrl(pokemon.id) : '';
+  }
+
+  getTypeEffectivenessInfo(fromP: 1 | 2) {
+    if (!this.pokemon1Details || !this.pokemon2Details) return null;
+    const p1Types = this.pokemon1Details.types.map((t: any) => t.type.name);
+    const p2Types = this.pokemon2Details.types.map((t: any) => t.type.name);
+
+    if (fromP === 1) {
+      return this.pokemonService.getBestTypeEffectiveness(p1Types, p2Types);
+    } else {
+      return this.pokemonService.getBestTypeEffectiveness(p2Types, p1Types);
+    }
+  }
+
+  triggerMascot() {
+    const mascotId = Math.random() > 0.5 ? 172 : 26;
+    this.playCry(null, mascotId);
   }
 }

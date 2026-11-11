@@ -74,6 +74,23 @@
   text-align: center;
   font-weight: 800;
 
+  .brand-logo-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    vertical-align: middle;
+
+    .header-brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ffcb05;
+      box-shadow: 0 0 8px rgba(255, 203, 5, 0.6);
+      background: #010824;
+    }
+  }
+
   .brand {
     font-size: 1.25rem;
     color: #ffffff;
@@ -658,6 +675,20 @@
       padding: 10px 14px;
       font-weight: 600;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+
+      ion-icon {
+        font-size: 1.15rem;
+        color: #ffcb05;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+      }
     }
   }
 }
@@ -938,6 +969,13 @@
         background: rgba(89, 177, 255, 0.15);
         padding: 2px 8px;
         border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        ion-icon {
+          font-size: 0.85rem;
+        }
 
         &.hidden {
           color: #ffd700;
@@ -1001,9 +1039,16 @@
       font-weight: 800;
       background: rgba(0, 0, 0, 0.5);
       color: #ffd700;
-      padding: 1px 6px;
+      padding: 2px 6px;
       border-radius: 6px;
       border: 1px solid rgba(255, 215, 0, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+
+      ion-icon {
+        font-size: 0.75rem;
+      }
     }
 
     .gif-display-area {

@@ -1,0 +1,63 @@
+<div class="generation-chart-container">
+  <!-- Cabecera y selector de tipo de grafico -->
+  <div class="chart-header" *ngIf="showTypeToggle">
+    <div class="chart-title-box">
+      <h3 class="chart-title">Distribucion por Generacion</h3>
+      <span class="chart-subtitle">Cantidad de especies introducidas por etapa</span>
+    </div>
+
+    <div class="chart-toggle-group">
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="chartType === 'doughnut'"
+        (click)="setChartType('doughnut')"
+        title="Ver en formato dona"
+      >
+        <ion-icon name="pie-chart-outline"></ion-icon>
+        <span>Dona</span>
+      </button>
+
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="chartType === 'bar'"
+        (click)="setChartType('bar')"
+        title="Ver en formato barras"
+      >
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        <span>Barras</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenedor del lienzo interactivo de Chart.js -->
+  <div class="chart-canvas-wrapper" [class.is-doughnut]="chartType === 'doughnut'">
+    <canvas #chartCanvas></canvas>
+  </div>
+
+  <!-- Leyenda personalizada con valores visibles por generacion -->
+  <div class="chart-legend-grid">
+    <div
+      *ngFor="let gen of generations"
+      class="legend-item"
+      (click)="onLegendItemClick(gen)"
+      role="button"
+      [tabindex]="0"
+      [title]="'Filtrar ' + gen.displayName"
+    >
+      <div class="legend-left">
+        <span class="legend-color-dot" [style.background-color]="gen.color"></span>
+        <div class="legend-names">
+          <span class="legend-name">{{ gen.shortName }}</span>
+          <span class="legend-region">{{ gen.region }}</span>
+        </div>
+      </div>
+      <div class="legend-count">
+        <span class="count-value">{{ gen.pokemonCount }}</span>
+        <span class="count-unit">pk</span>
+      </div>
+    </div>
+  </div>
+</div>
+

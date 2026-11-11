@@ -1,0 +1,180 @@
+<ion-header [translucent]="true" class="pokedex-header">
+  <ion-toolbar class="header-toolbar">
+    <div class="pokedex-lights" slot="start">
+      <div class="big-blue-lens">
+        <div class="lens-reflection"></div>
+      </div>
+      <div class="small-lights">
+        <span class="light red"></span>
+        <span class="light yellow"></span>
+        <span class="light green"></span>
+      </div>
+    </div>
+
+    <ion-title class="pokedex-title">
+      <div class="brand-logo-container">
+        <img src="assets/logo/pokemon_app_logo.png" alt="Pichu y Raichu Logo" class="header-brand-logo" />
+        <span class="brand">Pokedex</span>
+        <span class="edition">2026</span>
+      </div>
+    </ion-title>
+
+    <div slot="end" class="header-actions">
+      <div class="badge-count" *ngIf="!loading && data">
+        {{ data.totalPokemon }} PK
+      </div>
+      <button type="button" class="exit-app-button" (click)="exitToWelcome()" aria-label="Salir">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span class="exit-label">Salir</span>
+      </button>
+    </div>
+  </ion-toolbar>
+
+  <!-- Navegacion principal -->
+  <div class="main-mode-tabs">
+    <a [routerLink]="['/pokedex']" class="mode-tab-btn">
+      <ion-icon name="list-outline"></ion-icon>
+      <span class="tab-label">Ver Todos</span>
+    </a>
+
+    <a [routerLink]="['/compare']" class="mode-tab-btn">
+      <ion-icon name="swap-horizontal"></ion-icon>
+      <span class="tab-label">Batallas</span>
+      <span class="tab-vs-pill">VS</span>
+    </a>
+
+    <a [routerLink]="['/stats']" class="mode-tab-btn">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span class="tab-label">Estadisticas</span>
+    </a>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="home-content">
+  <div class="home-container">
+    <!-- Hero Banner Pokédex -->
+    <div class="hero-card">
+      <div class="hero-left-col">
+        <span class="hero-badge">
+          <ion-icon name="flash"></ion-icon>
+          Pichu &amp; Raichu Edition
+        </span>
+        <h1 class="hero-headline">Enciclopedia Pokemon</h1>
+        <p class="hero-tagline">
+          Explora especies de las 9 generaciones, compara luchadores en la arena y consulta estadisticas en tiempo real.
+        </p>
+      </div>
+
+      <div class="hero-image-frame">
+        <img
+          src="assets/logo/pokemon_app_logo.png"
+          alt="Pichu y Raichu"
+          class="hero-pokemon-mascot"
+        />
+      </div>
+    </div>
+
+    <!-- BOTONES PRINCIPALES DE ACCION (Requisito 3: Altura minima 52-56px, ancho completo, bordes redondeados, negrita, efecto activo) -->
+    <div class="action-buttons-stack">
+      <!-- Boton Principal 1: Entrar a Ver Todos -->
+      <button
+        type="button"
+        class="main-cta-button primary-cta"
+        (click)="goToPokedex()"
+      >
+        <div class="cta-content">
+          <ion-icon name="list-outline" class="cta-icon"></ion-icon>
+          <span class="cta-label">Entrar a Ver Todos los Pokemon</span>
+        </div>
+        <ion-icon name="arrow-forward-outline" class="cta-arrow"></ion-icon>
+      </button>
+
+      <!-- Boton Principal 2: Entrar a Batallas / Comparar -->
+      <button
+        type="button"
+        class="main-cta-button secondary-cta"
+        (click)="goToCompare()"
+      >
+        <div class="cta-content">
+          <ion-icon name="swap-horizontal" class="cta-icon"></ion-icon>
+          <span class="cta-label">Entrar a Batallas (VS Arena)</span>
+        </div>
+        <span class="cta-vs-badge">VS</span>
+      </button>
+    </div>
+
+    <!-- Estado de Carga -->
+    <div *ngIf="loading" class="loading-state-card">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="loading-hint">Cargando estadisticas y metricas de generaciones...</p>
+    </div>
+
+    <!-- Estado de Error de Red con Reintentar -->
+    <div *ngIf="!loading && errorMessage" class="error-state-card">
+      <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+      <h3 class="error-heading">Problema de conexion</h3>
+      <p class="error-detail">{{ errorMessage }}</p>
+      <button type="button" class="retry-btn" (click)="loadData(true)">
+        <ion-icon name="refresh-outline"></ion-icon>
+        <span>Reintentar</span>
+      </button>
+    </div>
+
+    <!-- Secciones con Datos Cargados -->
+    <div *ngIf="!loading && data" class="loaded-sections">
+      <!-- GRAFICO COMPLETO DE POKEMON POR GENERACION (Requisito 3) -->
+      <section class="section-block">
+        <div class="section-title-row">
+          <h2 class="section-title">Distribucion por Generacion</h2>
+          <button type="button" class="section-action-btn" (click)="goToStats()">
+            <span>Ver estadisticas</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <app-generation-chart
+          [generations]="data.generations"
+          chartType="doughnut"
+          (generationSelected)="goToStats($event)"
+        ></app-generation-chart>
+      </section>
+
+      <!-- TARJETAS CONTADORAS RESUMIDAS (Debajo del grafico, Requisito 3) -->
+      <section class="section-block">
+        <div class="section-title-row">
+          <h2 class="section-title">Resumen de Contadores</h2>
+          <span class="section-subtitle">Toca una tarjeta para ver sus detalles</span>
+        </div>
+
+        <!-- Tarjeta de Resumen Total Arriba (Principal) -->
+        <div class="total-card-holder">
+          <app-generation-stat-card
+            [isPrimary]="true"
+            title="Total de Pokemon"
+            [count]="data.totalPokemon"
+            subtitle="Especies contabilizadas desde la PokeAPI"
+            icon="apps-outline"
+            actionLink="/pokedex"
+            actionText="Ver todos"
+          ></app-generation-stat-card>
+        </div>
+
+        <!-- Cuadricula de 2 Columnas de Tarjetas Secundarias -->
+        <div class="home-stat-cards-grid">
+          <div *ngFor="let gen of data.generations" class="stat-card-cell">
+            <app-generation-stat-card
+              [isPrimary]="false"
+              [title]="gen.displayName"
+              [region]="gen.region"
+              [count]="gen.pokemonCount"
+              subtitle="Pokemon registrados"
+              [icon]="gen.icon"
+              [accentColor]="gen.color"
+              (cardClick)="goToStats(gen.id)"
+            ></app-generation-stat-card>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</ion-content>

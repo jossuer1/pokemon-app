@@ -1,0 +1,71 @@
+<div
+  class="stat-card"
+  [class.is-primary]="isPrimary"
+  [class.is-selected]="isSelected"
+  [style.--card-accent]="accentColor"
+  (click)="onCardClick()"
+  role="button"
+  [tabindex]="0"
+>
+  <!-- Tarjeta Principal de Resumen Total (fondo azul oscuro, texto blanco, numero grande) -->
+  <ng-container *ngIf="isPrimary">
+    <div class="primary-header">
+      <div class="primary-badge">
+        <ion-icon [name]="icon" class="primary-badge-icon"></ion-icon>
+        <span class="primary-title">{{ title || 'Total de Pokemon' }}</span>
+      </div>
+      <div class="primary-corner-spark">
+        <ion-icon name="sparkles-outline"></ion-icon>
+      </div>
+    </div>
+
+    <div class="primary-body">
+      <div class="primary-count">{{ count | number }}</div>
+      <div class="primary-subtitle">{{ subtitle }}</div>
+    </div>
+
+    <div class="primary-footer" *ngIf="actionText">
+      <a
+        *ngIf="actionLink; else actionButtonTpl"
+        [routerLink]="actionLink"
+        class="primary-action-btn"
+        (click)="$event.stopPropagation()"
+      >
+        <span>{{ actionText }}</span>
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </a>
+      <ng-template #actionButtonTpl>
+        <button
+          type="button"
+          class="primary-action-btn"
+          (click)="onActionClick($event)"
+        >
+          <span>{{ actionText }}</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </ng-template>
+    </div>
+  </ng-container>
+
+  <!-- Tarjeta Secundaria de Generacion (fondo blanco, icono en circulo, titulo gris, numero azul oscuro, punto de color) -->
+  <ng-container *ngIf="!isPrimary">
+    <div class="secondary-header">
+      <div class="icon-circle" [style.background-color]="accentColor + '18'" [style.color]="accentColor">
+        <ion-icon [name]="icon"></ion-icon>
+      </div>
+      <div class="corner-indicator">
+        <span class="color-dot" [style.background-color]="accentColor"></span>
+      </div>
+    </div>
+
+    <div class="secondary-body">
+      <div class="title-row">
+        <span class="secondary-title">{{ title }}</span>
+        <span class="secondary-region" *ngIf="region">{{ region }}</span>
+      </div>
+      <div class="secondary-count">{{ count | number }}</div>
+      <span class="secondary-subtitle">{{ subtitle }}</span>
+    </div>
+  </ng-container>
+</div>
+

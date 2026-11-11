@@ -12,23 +12,30 @@
     </div>
 
     <ion-title class="pokedex-title">
-      <span class="brand">Pokédex</span>
-      <span class="edition">2026</span>
+      <div class="brand-logo-container">
+        <img src="assets/logo/pokemon_app_logo.png" alt="Pichu y Raichu Logo" class="header-brand-logo" />
+        <span class="brand">Pokédex</span>
+        <span class="edition">2026</span>
+      </div>
     </ion-title>
 
-    <div slot="end" class="badge-count">
-      VS Arena
+    <div slot="end" class="header-actions">
+      <div class="badge-count">VS Arena</div>
+      <button type="button" class="exit-app-button" (click)="exitToWelcome()" aria-label="Salir">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span class="exit-label">Salir</span>
+      </button>
     </div>
   </ion-toolbar>
 
-  <!-- NAVEGACIÓN PRINCIPAL: 1. Ver Todos | 2. Comparar -->
+  <!-- Navegacion principal -->
   <div class="main-mode-tabs">
     <a
       [routerLink]="['/pokedex']"
       class="mode-tab-btn"
     >
       <ion-icon name="list-outline"></ion-icon>
-      <span class="tab-label">1. Ver Todos</span>
+      <span class="tab-label">Ver Todos</span>
     </a>
 
     <a
@@ -36,8 +43,16 @@
       class="mode-tab-btn active"
     >
       <ion-icon name="swap-horizontal"></ion-icon>
-      <span class="tab-label">2. Comparar</span>
+      <span class="tab-label">Batallas</span>
       <span class="tab-vs-pill">VS</span>
+    </a>
+
+    <a
+      [routerLink]="['/stats']"
+      class="mode-tab-btn"
+    >
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span class="tab-label">Estadisticas</span>
     </a>
   </div>
 </ion-header>
@@ -53,7 +68,10 @@
     <!-- Cabecera de Batalla / Enfrentamiento -->
     <div class="battle-arena-card">
       <div class="arena-header">
-        <span class="arena-title">⚔️ Comparador de Batalla Pokémon</span>
+        <span class="arena-title">
+          <ion-icon name="flash-outline" class="title-icon"></ion-icon>
+          Comparador de Batalla Pokémon
+        </span>
         <button type="button" class="swap-btn" (click)="swapPokemons()" title="Intercambiar posiciones">
           <ion-icon name="swap-horizontal"></ion-icon>
           <span>Intercambiar</span>
@@ -67,7 +85,10 @@
           <div class="fighter-card" *ngIf="pokemon1">
             <span class="slot-badge">Luchador 1</span>
             <div class="fighter-img-box">
-              <span class="live-gif-badge">GIF 🔴</span>
+              <span class="live-gif-badge">
+                <span class="rec-dot"></span>
+                <span>GIF</span>
+              </span>
               <img
                 [src]="getGifUrl(pokemon1)"
                 [alt]="pokemon1.name"
@@ -101,7 +122,8 @@
                 <span>Rugido</span>
               </button>
               <button type="button" class="change-slot-btn" (click)="openPicker(1)">
-                Elegir 🔄
+                <ion-icon name="sync-outline"></ion-icon>
+                <span>Elegir</span>
               </button>
             </div>
           </div>
@@ -112,7 +134,7 @@
           <div class="vs-circle">
             <span class="vs-text">VS</span>
           </div>
-          <span class="vs-spark">⚡</span>
+          <ion-icon name="flash" class="vs-spark-icon"></ion-icon>
         </div>
 
         <!-- Luchador 2 -->
@@ -120,7 +142,10 @@
           <div class="fighter-card" *ngIf="pokemon2">
             <span class="slot-badge">Luchador 2</span>
             <div class="fighter-img-box">
-              <span class="live-gif-badge">GIF 🔴</span>
+              <span class="live-gif-badge">
+                <span class="rec-dot"></span>
+                <span>GIF</span>
+              </span>
               <img
                 [src]="getGifUrl(pokemon2)"
                 [alt]="pokemon2.name"
@@ -154,7 +179,8 @@
                 <span>Rugido</span>
               </button>
               <button type="button" class="change-slot-btn" (click)="openPicker(2)">
-                Elegir 🔄
+                <ion-icon name="sync-outline"></ion-icon>
+                <span>Elegir</span>
               </button>
             </div>
           </div>
@@ -188,7 +214,10 @@
       <!-- Sección 1: Comparativa de Estadísticas Base (Dual Bars) -->
       <div class="compare-section">
         <div class="section-title-row">
-          <span class="compare-section-title">📊 Comparativa de Estadísticas Base</span>
+          <span class="compare-section-title">
+            <ion-icon name="bar-chart-outline" class="sec-icon"></ion-icon>
+            Comparativa de Estadísticas Base
+          </span>
           <div class="legend">
             <span class="legend-dot p1-dot"></span> {{ pokemon1?.name | titlecase }}
             <span class="legend-dot p2-dot"></span> {{ pokemon2?.name | titlecase }}
@@ -262,7 +291,10 @@
 
       <!-- Sección 2: Comparativa Física (Peso y Altura) -->
       <div class="compare-section">
-        <span class="compare-section-title">⚖️ Comparativa Física y Experiencia</span>
+        <span class="compare-section-title">
+          <ion-icon name="scale-outline" class="sec-icon"></ion-icon>
+          Comparativa Física y Experiencia
+        </span>
         <div class="metrics-comparison-grid">
           <!-- Peso -->
           <div class="metric-compare-item">
@@ -306,7 +338,10 @@
 
       <!-- Sección 3: Habilidades de Ambos -->
       <div class="compare-section">
-        <span class="compare-section-title">✨ Habilidades en Combate</span>
+        <span class="compare-section-title">
+          <ion-icon name="sparkles-outline" class="sec-icon"></ion-icon>
+          Habilidades en Combate
+        </span>
         <div class="abilities-compare-columns">
           <div class="abilities-col">
             <span class="col-owner">{{ pokemon1?.name | titlecase }}</span>

@@ -74,6 +74,23 @@
   text-align: center;
   font-weight: 800;
 
+  .brand-logo-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    vertical-align: middle;
+
+    .header-brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ffcb05;
+      box-shadow: 0 0 8px rgba(255, 203, 5, 0.6);
+      background: #010824;
+    }
+  }
+
   .brand {
     font-size: 1.25rem;
     color: #ffffff;
@@ -238,6 +255,14 @@
     color: #ff6b6b;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    .title-icon {
+      font-size: 1.15rem;
+      color: #ffd700;
+    }
   }
 
   .swap-btn {
@@ -318,11 +343,22 @@
       color: #ffffff;
       font-size: 0.6rem;
       font-weight: 900;
-      padding: 1px 5px;
+      padding: 1px 6px;
       border-radius: 6px;
       box-shadow: 0 0 8px rgba(229, 37, 33, 0.7);
       animation: pulseRed 1.2s infinite alternate;
       z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+
+      .rec-dot {
+        width: 6px;
+        height: 6px;
+        background: #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 0 4px #ffffff;
+      }
     }
 
     .fighter-img {
@@ -414,10 +450,22 @@
       border: 1px solid rgba(255, 255, 255, 0.25);
       color: #ffffff;
       border-radius: 8px;
-      padding: 5px 6px;
+      padding: 5px 8px;
       font-size: 0.72rem;
       font-weight: 700;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+
+      ion-icon {
+        font-size: 0.85rem;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.22);
+      }
     }
   }
 }
@@ -448,9 +496,17 @@
     }
   }
 
-  .vs-spark {
-    font-size: 0.95rem;
+  .vs-spark-icon {
+    font-size: 1.15rem;
+    color: #ffd700;
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8));
+    animation: sparkPulse 1.2s infinite alternate ease-in-out;
   }
+}
+
+@keyframes sparkPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; }
 }
 
 .compare-loading {
@@ -510,7 +566,14 @@
     color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    .sec-icon {
+      font-size: 1.15rem;
+      color: #ffd700;
+    }
   }
 
   .section-title-row {

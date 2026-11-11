@@ -12,6 +12,11 @@ export const routes: Routes = [
       import('./pages/compare/compare.page').then((m) => m.ComparePage),
   },
   {
+    path: 'stats',
+    loadComponent: () =>
+      import('./pages/stats/stats.page').then((m) => m.StatsPage),
+  },
+  {
     path: 'home',
     redirectTo: 'pokedex',
     pathMatch: 'full',
@@ -20,5 +25,9 @@ export const routes: Routes = [
     path: '',
     redirectTo: 'pokedex',
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'pokedex',
   },
 ];

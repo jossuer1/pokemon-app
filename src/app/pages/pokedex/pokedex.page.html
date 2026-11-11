@@ -12,22 +12,31 @@
     </div>
 
     <ion-title class="pokedex-title">
-      <span class="brand">Pokédex</span>
+      <div class="brand-logo-container">
+        <img src="assets/logo/pokemon_app_logo.png" alt="Pichu y Raichu Logo" class="header-brand-logo" />
+        <span class="brand">Pokédex</span>
+      </div>
     </ion-title>
 
-    <div slot="end" class="badge-count" *ngIf="!loading">
-      {{ filteredPokemons.length }} / {{ pokemons.length }}
+    <div slot="end" class="header-actions">
+      <div class="badge-count" *ngIf="!loading">
+        {{ filteredPokemons.length }} / {{ pokemons.length }}
+      </div>
+      <button type="button" class="exit-app-button" (click)="exitToWelcome()" aria-label="Salir">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span class="exit-label">Salir</span>
+      </button>
     </div>
   </ion-toolbar>
 
-  <!-- NAVEGACIÓN PRINCIPAL: 1. Ver Todos | 2. Comparar -->
+  <!-- Navegacion principal -->
   <div class="main-mode-tabs">
     <a
       [routerLink]="['/pokedex']"
       class="mode-tab-btn active"
     >
       <ion-icon name="list-outline"></ion-icon>
-      <span class="tab-label">1. Ver Todos</span>
+      <span class="tab-label">Ver Todos</span>
     </a>
 
     <a
@@ -35,8 +44,16 @@
       class="mode-tab-btn"
     >
       <ion-icon name="swap-horizontal"></ion-icon>
-      <span class="tab-label">2. Comparar</span>
+      <span class="tab-label">Batallas</span>
       <span class="tab-vs-pill">VS</span>
+    </a>
+
+    <a
+      [routerLink]="['/stats']"
+      class="mode-tab-btn"
+    >
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span class="tab-label">Estadisticas</span>
     </a>
   </div>
 
@@ -89,7 +106,7 @@
         (click)="selectType(type.id)"
         class="type-chip-btn"
       >
-        <span class="chip-icon">{{ type.icon }}</span>
+        <span class="chip-icon"><ion-icon [name]="type.icon"></ion-icon></span>
         <span class="chip-label">{{ type.name }}</span>
       </button>
     </div>
@@ -104,7 +121,7 @@
         (click)="selectType(type.id)"
         class="type-grid-item"
       >
-        <span class="grid-item-icon">{{ type.icon }}</span>
+        <span class="grid-item-icon"><ion-icon [name]="type.icon"></ion-icon></span>
         <span class="grid-item-label">{{ type.name }}</span>
       </button>
     </div>
@@ -120,7 +137,7 @@
 
   <!-- Estado vacío cuando no hay resultados de búsqueda -->
   <div *ngIf="!loading && filteredPokemons.length === 0" class="empty-state">
-    <div class="empty-icon">🔍</div>
+    <div class="empty-icon"><ion-icon name="search-outline"></ion-icon></div>
     <h3>No se encontraron Pokémon</h3>
     <p>Prueba con otro nombre, número o cambia el filtro de tipo.</p>
     <ion-button fill="outline" color="light" (click)="searchQuery = ''; selectedType = 'all'">
@@ -183,7 +200,7 @@
               title="Alternar versión Shiny (Variocolor)"
             >
               <ion-icon name="sparkles"></ion-icon>
-              <span>{{ showShiny ? 'Shiny ✨' : 'Normal' }}</span>
+              <span>{{ showShiny ? 'Shiny' : 'Normal' }}</span>
             </button>
             <button class="close-btn" (click)="closeModal()">
               <ion-icon name="close"></ion-icon>
@@ -227,7 +244,8 @@
                 (click)="playCry($event, selectedPokemon.id, true)"
                 title="Sonido clásico Game Boy"
               >
-                Sonido Retro 👾
+                <ion-icon name="game-controller-outline"></ion-icon>
+                <span>Sonido Retro</span>
               </button>
             </div>
           </div>
@@ -349,7 +367,8 @@
                   <div class="ability-card-header">
                     <span class="ability-title">{{ ab.ability.name | titlecase }}</span>
                     <span class="ability-badge" [class.hidden]="ab.is_hidden">
-                      {{ ab.is_hidden ? 'Habilidad Oculta 🔒' : 'Habilidad Pasiva ⚡' }}
+                      <ion-icon [name]="ab.is_hidden ? 'lock-closed-outline' : 'flash-outline'"></ion-icon>
+                      <span>{{ ab.is_hidden ? 'Habilidad Oculta' : 'Habilidad Pasiva' }}</span>
                     </span>
                   </div>
                   <p class="ability-desc">
@@ -368,7 +387,10 @@
 
               <div class="gifs-grid">
                 <div *ngFor="let gif of pokemonGifs" class="gif-card">
-                  <div class="gif-badge-tag">{{ gif.badge }}</div>
+                  <div class="gif-badge-tag">
+                    <ion-icon [name]="gif.icon" *ngIf="gif.icon"></ion-icon>
+                    <span>{{ gif.badge }}</span>
+                  </div>
                   <div class="gif-display-area">
                     <img
                       [src]="gif.url"

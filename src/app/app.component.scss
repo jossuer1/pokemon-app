@@ -1,0 +1,221 @@
+/* ==========================================================
+   APP COMPONENT & SPLASH SCREEN STYLES
+   ========================================================== */
+
+.poke-splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #010824;
+  background: radial-gradient(circle at 50% 35%, #0d2259 0%, #020b29 55%, #010824 100%);
+  overflow: hidden;
+  user-select: none;
+  cursor: pointer;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  &.fade-out {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+  }
+}
+
+.splash-backdrop-glow {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 203, 5, 0.18) 0%, rgba(59, 130, 246, 0.12) 50%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  animation: glowPulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes glowPulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+.splash-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  width: 440px;
+  padding: 16px;
+}
+
+.splash-media-frame {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  height: min(56vh, 500px);
+  border-radius: 26px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 203, 5, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(255, 203, 5, 0.35);
+  background: #010824;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .splash-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    animation: zoomIntro 2.5s ease-out forwards;
+  }
+}
+
+@keyframes zoomIntro {
+  0% { transform: scale(1.08); filter: brightness(0.9); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.electric-sparks-float {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  .spark {
+    position: absolute;
+    color: #ffd700;
+    filter: drop-shadow(0 0 8px #ffd700);
+
+    &.spark-1 {
+      top: 14%;
+      right: 18%;
+      font-size: 1.6rem;
+      animation: floatSpark1 1.8s infinite alternate ease-in-out;
+    }
+
+    &.spark-2 {
+      top: 48%;
+      left: 12%;
+      font-size: 1.4rem;
+      color: #5ce1e6;
+      filter: drop-shadow(0 0 8px #5ce1e6);
+      animation: floatSpark2 2s infinite alternate ease-in-out;
+    }
+
+    &.spark-3 {
+      bottom: 22%;
+      right: 14%;
+      font-size: 1.7rem;
+      animation: floatSpark3 1.6s infinite alternate ease-in-out;
+    }
+  }
+}
+
+@keyframes floatSpark1 {
+  0% { transform: translateY(0) scale(0.9) rotate(0deg); opacity: 0.6; }
+  100% { transform: translateY(-8px) scale(1.25) rotate(15deg); opacity: 1; }
+}
+
+@keyframes floatSpark2 {
+  0% { transform: translateY(0) scale(0.9) rotate(0deg); opacity: 0.5; }
+  100% { transform: translateY(-10px) scale(1.2) rotate(-15deg); opacity: 0.95; }
+}
+
+@keyframes floatSpark3 {
+  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.7; }
+  100% { transform: translateY(-6px) scale(1.3) rotate(20deg); opacity: 1; }
+}
+
+.splash-footer-box {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.splash-welcome-copy {
+  text-align: center;
+
+  h1 {
+    margin: 0 0 6px;
+    color: #ffffff;
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+}
+
+.splash-actions-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.splash-skip-button {
+  width: 100%;
+  min-height: 54px;
+  background: linear-gradient(135deg, #ffdc52, #ffcb05);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #101a3c;
+  padding: 12px 20px;
+  border-radius: 18px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255, 203, 5, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  ion-icon {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    filter: brightness(1.06);
+    box-shadow: 0 12px 30px rgba(255, 203, 5, 0.5);
+
+    ion-icon {
+      transform: translateX(4px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+  }
+}
+
+@media (max-height: 700px) {
+  .splash-media-frame {
+    height: 48vh;
+  }
+
+  .splash-card {
+    padding: 8px;
+  }
+}

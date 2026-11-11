@@ -1,0 +1,369 @@
+<ion-header [translucent]="true" class="pokedex-header">
+  <ion-toolbar class="header-toolbar">
+    <div class="pokedex-lights" slot="start">
+      <div class="big-blue-lens">
+        <div class="lens-reflection"></div>
+      </div>
+      <div class="small-lights">
+        <span class="light red"></span>
+        <span class="light yellow"></span>
+        <span class="light green"></span>
+      </div>
+    </div>
+
+    <ion-title class="pokedex-title">
+      <div class="brand-logo-container">
+        <img src="assets/logo/pokemon_app_logo.png" alt="Pichu y Raichu Logo" class="header-brand-logo" />
+        <span class="brand">Pokedex</span>
+        <span class="edition">Stats</span>
+      </div>
+    </ion-title>
+
+    <div slot="end" class="header-actions">
+      <div class="badge-count" *ngIf="!loading && data">
+        {{ data.totalPokemon }} PK
+      </div>
+      <button type="button" class="exit-app-button" (click)="exitToWelcome()" aria-label="Salir">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span class="exit-label">Salir</span>
+      </button>
+    </div>
+  </ion-toolbar>
+
+  <!-- Navegacion principal -->
+  <div class="main-mode-tabs">
+    <a [routerLink]="['/pokedex']" class="mode-tab-btn">
+      <ion-icon name="list-outline"></ion-icon>
+      <span class="tab-label">Ver Todos</span>
+    </a>
+
+    <a [routerLink]="['/compare']" class="mode-tab-btn">
+      <ion-icon name="swap-horizontal"></ion-icon>
+      <span class="tab-label">Batallas</span>
+      <span class="tab-vs-pill">VS</span>
+    </a>
+
+    <a [routerLink]="['/stats']" class="mode-tab-btn active">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span class="tab-label">Estadisticas</span>
+    </a>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="stats-content">
+  <div class="stats-container">
+    <!-- Titulo y descripcion del modulo -->
+    <div class="section-heading">
+      <span class="heading-tag">Analisis Global</span>
+      <h1 class="heading-title">Estadisticas por Generacion</h1>
+      <p class="heading-description">
+        Explora la evolucion de especies descubiertas en cada region del universo Pokemon.
+      </p>
+    </div>
+
+    <!-- Estado de carga (Skeleton + Spinner) -->
+    <div *ngIf="loading" class="loading-state-box">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="loading-label">Obteniendo estadisticas desde la PokeAPI...</p>
+
+      <div class="skeleton-grid">
+        <div class="skeleton-card skeleton-primary"></div>
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+      </div>
+    </div>
+
+    <!-- Estado de Error de Red con boton Reintentar -->
+    <div *ngIf="!loading && errorMessage" class="error-state-card">
+      <div class="error-icon-box">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+      </div>
+      <h3 class="error-title">Error al consultar datos</h3>
+      <p class="error-message">{{ errorMessage }}</p>
+      <button type="button" class="retry-button" (click)="loadData(true)">
+        <ion-icon name="refresh-outline"></ion-icon>
+        <span>Reintentar conexion</span>
+      </button>
+    </div>
+
+    <!-- Contenido principal cargado -->
+    <div *ngIf="!loading && data" class="stats-main-content">
+      <!-- Filtro de Generaciones (Chips: Todas, Gen 1, Gen 2, etc.) -->
+      <div class="filter-sticky-row">
+        <app-generation-filter
+          [generations]="data.generations"
+          [selectedGenId]="selectedGenId"
+          (filterChange)="onSelectGeneration($event)"
+        ></app-generation-filter>
+      </div>
+
+      <!-- VISTA 1: TODAS LAS GENERACIONES (selectedGenId === null) -->
+      <div *ngIf="selectedGenId === null" class="all-generations-view">
+        <!-- Tarjeta Principal de Resumen Total (Arriba de todas: fondo azul oscuro, texto blanco, numero grande) -->
+        <div class="primary-card-wrapper">
+          <app-generation-stat-card
+            [isPrimary]="true"
+            title="Total de Pokemon"
+            [count]="data.totalPokemon"
+            subtitle="Especies registradas en las 9 generaciones"
+            icon="apps-outline"
+            actionLink="/pokedex"
+            actionText="Ver todos"
+          ></app-generation-stat-card>
+        </div>
+
+        <!-- Grafico completo de Pokemon por generacion -->
+        <div class="chart-section-wrapper">
+          <app-generation-chart
+            [generations]="data.generations"
+            chartType="doughnut"
+            (generationSelected)="onSelectGeneration($event)"
+          ></app-generation-chart>
+        </div>
+
+        <!-- Titulo de la cuadricula de tarjetas secundarias -->
+        <div class="subheading-row">
+          <h2 class="subheading-title">Tarjetas por Generacion</h2>
+          <span class="subheading-hint">Toca una tarjeta para filtrar sus Pokemon</span>
+        </div>
+
+        <!-- Cuadricula de 2 columnas con las tarjetas de cada generacion (secundarias) -->
+        <div class="generation-cards-grid">
+          <div *ngFor="let gen of data.generations" class="grid-card-cell">
+            <app-generation-stat-card
+              [isPrimary]="false"
+              [title]="gen.displayName"
+              [region]="gen.region"
+              [count]="gen.pokemonCount"
+              subtitle="Pokemon registrados"
+              [icon]="gen.icon"
+              [accentColor]="gen.color"
+              (cardClick)="onSelectGeneration(gen.id)"
+            ></app-generation-stat-card>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA 2: GENERACION FILTRADA (selectedGenId !== null) -->
+      <div *ngIf="selectedGenId !== null && getSelectedGeneration() as currentGen" class="single-generation-view">
+        <!-- Tarjeta de contador destacada de la generacion seleccionada -->
+        <div class="selected-gen-banner" [style.--banner-accent]="currentGen.color">
+          <div class="banner-top-row">
+            <div class="banner-badge">
+              <span class="badge-dot" [style.background-color]="currentGen.color"></span>
+              <span>Region {{ currentGen.region }}</span>
+            </div>
+
+            <button type="button" class="clear-filter-btn" (click)="onSelectGeneration(null)">
+              <span>Ver todas</span>
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="banner-info-body">
+            <div class="banner-texts">
+              <span class="banner-title">{{ currentGen.displayName }}</span>
+              <div class="banner-count-row">
+                <span class="banner-number">{{ currentGen.pokemonCount }}</span>
+                <span class="banner-label">Pokemon registrados</span>
+              </div>
+            </div>
+
+            <div class="banner-icon-circle" [style.background-color]="currentGen.color + '22'" [style.color]="currentGen.color">
+              <ion-icon [name]="currentGen.icon"></ion-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra informativa con cantidad -->
+        <div class="results-info-bar">
+          <span class="results-text">
+            Mostrando <strong>{{ getFilteredPokemonList().length }}</strong> Pokemon de <strong>{{ currentGen.displayName }}</strong>
+          </span>
+          <button type="button" class="back-link-btn" (click)="onSelectGeneration(null)">
+            Mostrar todas las generaciones
+          </button>
+        </div>
+
+        <!-- Cuadricula de Pokemon de esta generacion -->
+        <div class="pokemon-species-grid">
+          <div
+            *ngFor="let pokemon of getFilteredPokemonList()"
+            class="species-card"
+            (click)="openDetails(pokemon)"
+            role="button"
+            [tabindex]="0"
+          >
+            <div class="species-card-top">
+              <span class="species-id">{{ pokemon.formattedId }}</span>
+              <button
+                type="button"
+                class="species-sound-btn"
+                [class.playing]="currentPlayingId === pokemon.id"
+                (click)="playCry($event, pokemon.id)"
+                title="Escuchar sonido"
+              >
+                <ion-icon [name]="currentPlayingId === pokemon.id ? 'volume-high' : 'volume-medium'"></ion-icon>
+              </button>
+            </div>
+
+            <div class="species-image-box">
+              <img
+                [src]="pokemon.image"
+                [alt]="pokemon.name"
+                loading="lazy"
+                class="species-artwork"
+              />
+            </div>
+
+            <div class="species-name-label">
+              {{ pokemon.name }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALLE DEL POKEMON (reutilizable y completo) -->
+  <ion-modal
+    [isOpen]="isModalOpen"
+    (didDismiss)="closeModal()"
+    [initialBreakpoint]="0.9"
+    [breakpoints]="[0, 0.6, 0.9, 1]"
+    class="pokemon-detail-modal"
+  >
+    <ng-template>
+      <div class="modal-wrapper" *ngIf="selectedPokemon">
+        <div class="modal-handle"></div>
+
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-id">{{ formatId(selectedPokemon.id) }}</span>
+            <h2 class="modal-name">{{ selectedPokemon.name }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+
+        <div class="modal-body-scroll">
+          <!-- Ilustracion oficial y selector Normal/Shiny -->
+          <div class="modal-hero-artwork">
+            <img
+              [src]="showShiny ? selectedPokemon.shinyImage : selectedPokemon.image"
+              [alt]="selectedPokemon.name"
+              class="hero-artwork-img"
+            />
+            <div class="shiny-pill-toggle" (click)="toggleShiny()">
+              <ion-icon name="sparkles" [class.active]="showShiny"></ion-icon>
+              <span>{{ showShiny ? 'Shiny' : 'Normal' }}</span>
+            </div>
+          </div>
+
+          <!-- Spinner en el modal si los detalles se estan cargando -->
+          <div *ngIf="loadingDetails" class="modal-loading-box">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <span>Cargando caracteristicas...</span>
+          </div>
+
+          <!-- Informacion completa cargada -->
+          <div *ngIf="!loadingDetails && selectedPokemonDetails" class="modal-details-content">
+            <!-- Tipos -->
+            <div class="modal-types-row">
+              <span
+                *ngFor="let t of selectedPokemonDetails.types"
+                class="modal-type-chip"
+                [style.background-color]="getTypeColor(t.type.name)"
+              >
+                {{ translateType(t.type.name) }}
+              </span>
+            </div>
+
+            <!-- Botones de pestañas del modal -->
+            <div class="modal-tabs-bar">
+              <button
+                type="button"
+                class="modal-tab-btn"
+                [class.active]="detailTab === 'stats'"
+                (click)="setDetailTab('stats')"
+              >
+                Estadisticas
+              </button>
+              <button
+                type="button"
+                class="modal-tab-btn"
+                [class.active]="detailTab === 'features'"
+                (click)="setDetailTab('features')"
+              >
+                Rasgos
+              </button>
+              <button
+                type="button"
+                class="modal-tab-btn"
+                [class.active]="detailTab === 'abilities'"
+                (click)="setDetailTab('abilities')"
+              >
+                Habilidades
+              </button>
+              <button
+                type="button"
+                class="modal-tab-btn"
+                [class.active]="detailTab === 'gifs'"
+                (click)="setDetailTab('gifs')"
+              >
+                Animaciones
+              </button>
+            </div>
+
+            <!-- Pestaña Estadisticas Base -->
+            <div *ngIf="detailTab === 'stats'" class="tab-stats-panel">
+              <div *ngFor="let s of selectedPokemonDetails.stats" class="stat-progress-row">
+                <span class="stat-name-label">{{ translateStat(s.stat.name) }}</span>
+                <span class="stat-value-label">{{ s.base_stat }}</span>
+                <div class="stat-track-bar">
+                  <div
+                    class="stat-fill-bar"
+                    [style.width.%]="(s.base_stat / 255) * 100"
+                    [style.background-color]="getStatColor(s.stat.name)"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pestaña Rasgos (Peso, Altura, XP) -->
+            <div *ngIf="detailTab === 'features'" class="tab-features-panel">
+              <div class="feature-item-card">
+                <span class="feature-title">Altura</span>
+                <span class="feature-value">{{ selectedPokemonDetails.height / 10 }} m</span>
+              </div>
+              <div class="feature-item-card">
+                <span class="feature-title">Peso</span>
+                <span class="feature-value">{{ selectedPokemonDetails.weight / 10 }} kg</span>
+              </div>
+              <div class="feature-item-card">
+                <span class="feature-title">Exp. Base</span>
+                <span class="feature-value">{{ selectedPokemonDetails.base_experience || 'N/A' }} XP</span>
+              </div>
+            </div>
+
+            <!-- Pestaña Habilidades -->
+            <div *ngIf="detailTab === 'abilities'" class="tab-abilities-panel">
+              <div *ngFor="let a of selectedPokemonDetails.abilities" class="ability-card-item">
+                <span class="ability-name">{{ a.ability.name }}</span>
+                <span class="ability-badge" *ngIf="a.is_hidden">Oculta</span>
+              </div>
+            </div>
+
+            <!-- Pestaña Animaciones (GIFs) -->
+            <div *ngIf="detailTab === 'gifs'" class="tab-gifs-panel">
+              <div *ngFor="let g of pokemonGifs" class="gif-card-item">
+                <span class="gif-title">{{ g.title }}</span>
+                <img [src]="g.url" [alt]="g.title" class="gif-img" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>

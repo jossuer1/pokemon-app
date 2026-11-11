@@ -1,3 +1,51 @@
 <ion-app>
+  <!-- Splash Screen Interactivo / Pantalla de Carga Inicial con Pichu y Raichu -->
+  <div
+    *ngIf="entryScreen.isVisible$ | async"
+    class="poke-splash-overlay"
+    [class.fade-out]="isFading"
+    role="dialog"
+    aria-labelledby="entry-title"
+  >
+    <div class="splash-backdrop-glow"></div>
+
+    <div class="splash-card">
+      <!-- Ilustración de Splash Screen con Pichu y Raichu -->
+      <div class="splash-media-frame">
+        <div class="splash-halo"></div>
+        <img
+          src="assets/logo/pokemon_splash_screen.png"
+          alt="Pokédex con Pichu y Raichu"
+          class="splash-image"
+        />
+        <!-- Efectos eléctricos flotantes con iconos -->
+        <div class="electric-sparks-float">
+          <ion-icon name="flash" class="spark spark-1"></ion-icon>
+          <ion-icon name="sparkles" class="spark spark-2"></ion-icon>
+          <ion-icon name="flash" class="spark spark-3"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Barra de progreso animada y pie de bienvenida -->
+      <div class="splash-footer-box">
+        <div class="splash-welcome-copy">
+          <h1 id="entry-title">Tu aventura comienza aqui</h1>
+          <p>Explora la Pokedex, descubre estadisticas y prepara tu proxima batalla.</p>
+        </div>
+
+        <div class="splash-actions-row">
+          <button
+            type="button"
+            class="splash-skip-button"
+            (click)="dismissSplash('/pokedex')"
+          >
+            <span>Entrar a Ver Todos</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <ion-router-outlet></ion-router-outlet>
 </ion-app>
